@@ -1,14 +1,20 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import express, { Express } from "express";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/auth.route";
+import todoRoutes from "./routes/todo.route";
+import habitRoutes from "./routes/habit.route";
 
-dotenv.config();
+import { PORT } from "./constants/index";
 
 const app: Express = express();
-const port = process.env.PORT || 5000;
+const port = PORT || 5000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
-});
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/api/auth", authRoutes);
+app.use("/api/todo", todoRoutes);
+app.use("/api/habit", habitRoutes);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

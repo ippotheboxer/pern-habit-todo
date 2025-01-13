@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int   @id @default(autoincrement())
+  username String @unique
+  firstName String
+  lastName String
+  password String
+  theme    String @default("light")
+  gender Gender
+  profilePic String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categories Category[]
+  todos      Todo[]   // One-to-many relationship with todos
+  streaks    Streak[] // One-to-many relationship with streaks
+  habits     Habit[]  // One-to-many relationship with habits
+}
+
+model Todo {
+  id          Int        @id @default(autoincrement())
+  categoryId  Int?
+  userId      Int
+  title       String
+  description String?    // Optional description
+  icon        String?    // Optional emoji icon for the todo
+  isCompleted Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  completedAt DateTime?  // Optional, populated when task is completed
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subtasks    SubTask[]  // One-to-many relationship with subtasks
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // User who owns the category
+  name        String   // Name of the category
+  color       String?  // Optional color code for the category (e.g., "#FF5733")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  todos       Todo[]   // Todos associated with this category
+  habits      Habit[]  // Habits associated with this category
+
+  @@unique([userId, name]) // Ensure unique category names per user
+}
+
+model SubTask {
+  id          Int      @id @default(autoincrement())
+  todoId      Int      // Foreign key referencing the parent Todo
+  title       String   // Title of the subtask
+  description String?  // Optional description of the subtask
+  isCompleted Boolean  @default(false) // Whether the subtask is completed
+  createdAt   DateTime @default(now()) // When the subtask was created
+  completedAt DateTime?  // When the subtask was completed (optional)
+
+  todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
+
+  @@index([todoId]) // Index for efficient querying by parent Todo
+}
+
+
+model Habit {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  categoryId    Int?
+  name        String    // Name of the habit
+  description String?   // Optional description
+  icon        String?   // Optional emoji icon for the habit
+  startDate   DateTime  @default(now())
+  frequency   String    @default("daily") // E.g., "daily", "weekly"
+  currentStreak Int        @default(0) // Current streak for the habit
+  highestStreak Int        @default(0) // Highest streak ever for the habit
+  lastLogged    DateTime?  // The last date this habit was logged
+  isActive    Boolean   @default(true) // Mark habit as active/inactive
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  habitLogs   HabitLog[] // Logs for tracking daily completions
+  category      Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
+model HabitLog {
+  id        Int      @id @default(autoincrement())
+  habitId   Int
+  date      DateTime     // Date the habit was checked/completed
+  completed Boolean  @default(false) // Whether the habit was completed on that date
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date]) // Ensure one log entry per habit per day
+}
+
+model Streak {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  date    DateTime     // Unique per user per day
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date]) // Ensures one streak per user per day
+}
+
+enum Gender {
+  male
+  female
+}
