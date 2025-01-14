@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/todo", todoRoutes);
+app.use("/api", todoRoutes);
 app.use("/api/habit", habitRoutes);
 
 app.listen(port, () => {

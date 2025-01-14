@@ -6,8 +6,8 @@ import generateToken from "../utils/generateToken";
 
 export const signUp = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { firstName, lastName , username, password, confirmPassword, gender } = req.body;
-        if (!firstName || !lastName || !username || !password || !confirmPassword || !gender) {
+        const { firstName, lastName , username, password, confirmPassword, gender, email } = req.body;
+        if (!firstName || !lastName || !username || !password || !confirmPassword || !gender || !email) {
             return res
             .status(400)
             .json({ error: "Please fill in all fields" });
@@ -17,15 +17,25 @@ export const signUp = async (req: Request, res: Response): Promise<Response | vo
             .status(400)
             .json({ error: "Passwords don't match" });
         }
-        const user = await prisma.user.findUnique({
+        const existingUser = await prisma.user.findUnique({
             where: { username }
         });
 
-        if (user) {
+        if (existingUser) {
             return res
             .status(400)
             .json({ error: "Username already taken" });
         }
+
+        const existingEmail = await prisma.user.findUnique({
+            where: { email: email.toLowerCase() },
+          });
+
+          if (existingEmail) {
+            return res
+            .status(400)
+            .json({ isTaken: true, message: 'Email is already taken' });
+          }
 
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(password, salt);
@@ -34,6 +44,7 @@ export const signUp = async (req: Request, res: Response): Promise<Response | vo
         const newUser = await prisma.user.create({
             data: {
                 username,
+                email: email.toLowerCase(),
                 firstName,
                 lastName,
                 password: hashedPassword,
@@ -48,6 +59,7 @@ export const signUp = async (req: Request, res: Response): Promise<Response | vo
             .status(201)
             .json({
                 id: newUser.id,
+                email: newUser.email,
                 firstName: newUser.firstName,
                 lastName: newUser.lastName,
                 username: newUser.username,

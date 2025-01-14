@@ -16,6 +16,7 @@ datasource db {
 model User {
   id Int   @id @default(autoincrement())
   username String @unique
+  email String @unique
   firstName String
   lastName String
   password String
@@ -36,11 +37,13 @@ model Todo {
   categoryId  Int?
   userId      Int
   title       String
-  description String?    // Optional description
+  description String?    
   icon        String?    // Optional emoji icon for the todo
   isCompleted Boolean    @default(false)
   createdAt   DateTime   @default(now())
-  completedAt DateTime?  // Optional, populated when task is completed
+  completedAt DateTime?  
+  dueDate     DateTime?
+
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   subtasks    SubTask[]  // One-to-many relationship with subtasks
   category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
