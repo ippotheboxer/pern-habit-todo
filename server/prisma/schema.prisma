@@ -66,12 +66,12 @@ model Category {
 
 model SubTask {
   id          Int      @id @default(autoincrement())
-  todoId      Int      // Foreign key referencing the parent Todo
-  title       String   // Title of the subtask
-  description String?  // Optional description of the subtask
-  isCompleted Boolean  @default(false) // Whether the subtask is completed
-  createdAt   DateTime @default(now()) // When the subtask was created
-  completedAt DateTime?  // When the subtask was completed (optional)
+  todoId      Int      
+  title       String   
+  description String?  
+  isCompleted Boolean  @default(false) 
+  createdAt   DateTime @default(now()) 
+  completedAt DateTime?  
 
   todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
 
