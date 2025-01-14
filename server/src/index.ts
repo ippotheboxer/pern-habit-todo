@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api", todoRoutes);
-app.use("/api/habit", habitRoutes);
+app.use("/api", habitRoutes);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

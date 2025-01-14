@@ -83,9 +83,10 @@ model Habit {
   id          Int       @id @default(autoincrement())
   userId      Int
   categoryId    Int?
-  name        String    // Name of the habit
-  description String?   // Optional description
+  name        String   
+  description String?   
   icon        String?   // Optional emoji icon for the habit
+  color       String?
   startDate   DateTime  @default(now())
   frequency   String    @default("daily") // E.g., "daily", "weekly"
   currentStreak Int        @default(0) // Current streak for the habit

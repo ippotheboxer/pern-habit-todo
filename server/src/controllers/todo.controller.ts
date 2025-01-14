@@ -12,7 +12,9 @@ const { userId } = req.params;
       },
     });
     if (todos.length === 0) {
-      res.status(404).json({ error: "No todos found for given user." })
+      res
+      .status(200)
+      .json({ error: "No todos found for given user." })
     } else {
       res
       .status(200)
